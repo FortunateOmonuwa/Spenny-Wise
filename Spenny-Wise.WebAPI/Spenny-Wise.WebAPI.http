@@ -1,0 +1,6 @@
+@Spenny_Wise.WebAPI_HostAddress = http://localhost:5110
+
+GET {{Spenny_Wise.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
