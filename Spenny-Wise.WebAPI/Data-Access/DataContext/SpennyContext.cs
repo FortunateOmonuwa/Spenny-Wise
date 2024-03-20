@@ -66,7 +66,6 @@ namespace Spenny_Wise.WebAPI.Data_Access
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<BudgetItem> BudgetItems { get; set;}
-        public DbSet<ExpenseItem>  ExpenseItems { get; set; }
         public DbSet<BudgetCategory> BudgetCategories { get; set;}
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
     }
