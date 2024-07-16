@@ -1,8 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using Spenny_Wise.WebAPI.Domain.Models.BaseModelEntity;
+using Spenny_Wise.WebAPI.Domain.Models.BudgetEntities;
+using Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities;
 
-namespace Spenny_Wise.WebAPI.Domain.Models
+namespace Spenny_Wise.WebAPI.Domain.Models.UserEntity
 {
     public class User : BaseEntity
     {
@@ -26,6 +29,7 @@ namespace Spenny_Wise.WebAPI.Domain.Models
         public DateTime DateCreated { get; set; }
         public List<Budget>? Budgets { get; set; }
         public List<Expense>? Expenses { get; set; }
-        public List<BudgetCategory>? Categories { get; set; }
+        public List<BudgetCategory>? BudgetCategories { get; set; }
+        public List<ExpenseCategory>? ExpenseCategories { get; set; }
     }
 }

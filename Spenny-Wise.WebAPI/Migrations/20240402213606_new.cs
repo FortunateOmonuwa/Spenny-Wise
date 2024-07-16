@@ -8,25 +8,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Spenny_Wise.WebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMigration : Migration
+    public partial class @new : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "ExpenseCategories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExpenseCategories", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
@@ -88,13 +74,33 @@ namespace Spenny_Wise.WebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ExpenseCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExpenseCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExpenseCategories_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Expenses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Price = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfExpense = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
                 },
@@ -127,27 +133,6 @@ namespace Spenny_Wise.WebAPI.Migrations
                         name: "FK_BudgetItems_Budgets_BudgetId1",
                         column: x => x.BudgetId1,
                         principalTable: "Budgets",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ExpenseItems",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Price = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExpenseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ExpenseId1 = table.Column<int>(type: "int", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExpenseItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ExpenseItems_Expenses_ExpenseId1",
-                        column: x => x.ExpenseId1,
-                        principalTable: "Expenses",
                         principalColumn: "Id");
                 });
 
@@ -221,9 +206,9 @@ namespace Spenny_Wise.WebAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExpenseItems_ExpenseId1",
-                table: "ExpenseItems",
-                column: "ExpenseId1");
+                name: "IX_ExpenseCategories_UserId",
+                table: "ExpenseCategories",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Expenses_UserId",
@@ -244,13 +229,10 @@ namespace Spenny_Wise.WebAPI.Migrations
                 name: "ExpenseCategories");
 
             migrationBuilder.DropTable(
-                name: "ExpenseItems");
+                name: "Expenses");
 
             migrationBuilder.DropTable(
                 name: "Budgets");
-
-            migrationBuilder.DropTable(
-                name: "Expenses");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -12,8 +12,8 @@ using Spenny_Wise.WebAPI.Data_Access;
 namespace Spenny_Wise.WebAPI.Migrations
 {
     [DbContext(typeof(SpennyContext))]
-    [Migration("20240320224504_Third Migration")]
-    partial class ThirdMigration
+    [Migration("20240402213606_new")]
+    partial class @new
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Spenny_Wise.WebAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.Budget", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.Budget", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +62,7 @@ namespace Spenny_Wise.WebAPI.Migrations
                     b.ToTable("Budgets");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetCategory", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.BudgetCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -182,7 +182,7 @@ namespace Spenny_Wise.WebAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetItem", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.BudgetItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -216,7 +216,7 @@ namespace Spenny_Wise.WebAPI.Migrations
                     b.ToTable("BudgetItems");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.Expense", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities.Expense", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,8 +224,8 @@ namespace Spenny_Wise.WebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfExpense")
                         .HasColumnType("datetime2");
@@ -249,7 +249,7 @@ namespace Spenny_Wise.WebAPI.Migrations
                     b.ToTable("Expenses");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.ExpenseCategory", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities.ExpenseCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,6 +266,8 @@ namespace Spenny_Wise.WebAPI.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ExpenseCategories");
 
@@ -377,7 +379,7 @@ namespace Spenny_Wise.WebAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.User", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.UserEntity.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -411,46 +413,55 @@ namespace Spenny_Wise.WebAPI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.Budget", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.Budget", b =>
                 {
-                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.User", null)
+                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.UserEntity.User", null)
                         .WithMany("Budgets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetCategory", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.BudgetCategory", b =>
                 {
-                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.User", null)
-                        .WithMany("Categories")
+                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.UserEntity.User", null)
+                        .WithMany("BudgetCategories")
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetItem", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.BudgetItem", b =>
                 {
-                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.Budget", null)
+                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.Budget", null)
                         .WithMany("BudgetItems")
                         .HasForeignKey("BudgetId1");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.Expense", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities.Expense", b =>
                 {
-                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.User", null)
+                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.UserEntity.User", null)
                         .WithMany("Expenses")
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.Budget", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities.ExpenseCategory", b =>
+                {
+                    b.HasOne("Spenny_Wise.WebAPI.Domain.Models.UserEntity.User", null)
+                        .WithMany("ExpenseCategories")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.BudgetEntities.Budget", b =>
                 {
                     b.Navigation("BudgetItems");
                 });
 
-            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.User", b =>
+            modelBuilder.Entity("Spenny_Wise.WebAPI.Domain.Models.UserEntity.User", b =>
                 {
+                    b.Navigation("BudgetCategories");
+
                     b.Navigation("Budgets");
 
-                    b.Navigation("Categories");
+                    b.Navigation("ExpenseCategories");
 
                     b.Navigation("Expenses");
                 });

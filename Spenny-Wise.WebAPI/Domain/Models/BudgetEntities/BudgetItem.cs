@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using Spenny_Wise.WebAPI.Domain.Models.BaseModelEntity;
 
-namespace Spenny_Wise.WebAPI.Domain.Models
+namespace Spenny_Wise.WebAPI.Domain.Models.BudgetEntities
 {
     public class BudgetItem : BaseEntity
     {

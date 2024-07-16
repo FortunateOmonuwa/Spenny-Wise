@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <Folder Include="Data-Access\Repositories\User\" />
   </ItemGroup>
 
 </Project>

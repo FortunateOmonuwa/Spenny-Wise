@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Spenny_Wise.WebAPI.Domain.Models;
+using Spenny_Wise.WebAPI.Domain.Models.BudgetEntities;
+using Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities;
+using Spenny_Wise.WebAPI.Domain.Models.UserEntity;
 
 namespace Spenny_Wise.WebAPI.Data_Access
 {

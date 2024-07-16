@@ -5,8 +5,10 @@ using Serilog.Events;
 using Serilog.Formatting.Compact;
 using Spenny_Wise.WebAPI.Data_Access;
 using Spenny_Wise.WebAPI.Data_Access.Contracts;
-using Spenny_Wise.WebAPI.Data_Access.Repository;
-using Spenny_Wise.WebAPI.Domain.Models;
+using Spenny_Wise.WebAPI.Data_Access.Contracts.BaseContract;
+using Spenny_Wise.WebAPI.Data_Access.Repositories;
+using Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities;
+using Spenny_Wise.WebAPI.Domain.Utilities;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -36,7 +38,10 @@ builder.Services.AddDbContext<SpennyContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Spenny-Connect"));
 });
-builder.Services.AddScoped<IBudgetandExpenseBaseContract<Expense>, ExpenseRepository>();
+//builder.Services.AddScoped<IBudgetandExpenseBaseContract<Expense>, ExpenseRepository>();
+builder.Services.AddScoped<ExceptionHandler>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 

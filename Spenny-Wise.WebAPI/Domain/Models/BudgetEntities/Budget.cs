@@ -2,8 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using Spenny_Wise.API.Domain.Enums;
+using Spenny_Wise.WebAPI.Domain.Models.BaseModelEntity;
+using Spenny_Wise.WebAPI.Domain.Models.UserEntity;
 
-namespace Spenny_Wise.WebAPI.Domain.Models
+namespace Spenny_Wise.WebAPI.Domain.Models.BudgetEntities
 {
     public class Budget : BaseEntity
     {
