@@ -10,10 +10,11 @@ namespace Spenny_Wise.WebAPI.Domain.DTOs.Expense
     public class ExpenseGet : BaseEntity
     {
 
-      
+        
         public string Price { get; set; } = "Price";
-        [DataType(DataType.Date)]
-        public DateTime DateOfExpense { get; set; }
+ 
+        public string DateOfExpense { get; set; }
         public int? CategoryId { get; set; }
+        public string CategoryName { get; set; }
     }
 }

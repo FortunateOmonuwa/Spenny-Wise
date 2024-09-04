@@ -7,22 +7,21 @@ namespace Spenny_Wise.WebAPI.Data_Access.Repositories.BudgetRepo
 {
     public class BudgetRepository : IBudgetandExpenseBaseContract<Budget>
     {
-        public Task<ResponseDetail<Budget>> Create(Budget param)
+        public Task<ResponseDetail<Budget>> Create(Budget param, Guid userId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDetail<Budget>> Create(Budget param, string Category)
+        public Task<ResponseDetail<bool>> Delete(Guid userId, string paramId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDetail<bool>> Delete(string paramId)
+        public Task<ResponseDetail<List<Budget>>> GetAll(Guid userId, int page_size, int page_number)
         {
             throw new NotImplementedException();
         }
-
-        public Task<ResponseDetail<List<Budget>>> GetAll()
+        public Task<ResponseDetail<List<Budget>>> GetAll(int page_size, int page_number)
         {
             throw new NotImplementedException();
         }
@@ -37,7 +36,7 @@ namespace Spenny_Wise.WebAPI.Data_Access.Repositories.BudgetRepo
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDetail<Budget>> GetById(string paramId)
+        public Task<ResponseDetail<Budget>> GetById(Guid userId, string paramId)
         {
             throw new NotImplementedException();
         }

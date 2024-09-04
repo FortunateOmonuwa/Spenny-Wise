@@ -11,19 +11,19 @@ namespace Spenny_Wise.WebAPI.Domain.Models.BudgetEntities
     {
         [Required]
         [ForeignKey(nameof(User))]
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         [Column(TypeName = "nvarchar(150)")]
         [DisplayName("Description")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Description is required!")]
         [StringLength(maximumLength: 200, MinimumLength = 20, ErrorMessage = "Description has to be between 20 and 200 characters")]
         public string Description { get; set; } = string.Empty;
-        [DataType(DataType.Date)]
-        public DateTime DateCreated { get; set; }
+    
+        public string DateCreated { get; set; } = DateTime.Now.Date.ToString();
 
         public LevelOfImportance Importance { get; set; }
 
         [ForeignKey(nameof(BudgetCategory))]
-        public Guid CategoryId { get; set; }
+        public int CategoryId { get; set; }
         public List<BudgetItem> BudgetItems { get; set; } = [];
     }
 }

@@ -10,7 +10,7 @@ namespace Spenny_Wise.WebAPI.Domain.DTOs.Expense
         public string Price { get; set; }
       
 
-        public string? Category { get; set; } 
+        public int CategoryId { get; set; } 
         [DataType(DataType.Date)] 
 
         public DateTime DateOfExpense { get; set; }

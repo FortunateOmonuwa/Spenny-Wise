@@ -9,6 +9,11 @@ namespace Spenny_Wise.WebAPI.Domain.Models.UserEntity
 {
     public class User : BaseEntity
     {
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string LastName { get; set; }
+        public string MiddleName { get; set; } = "";
         [DisplayName("Phone-Number")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Phone-Number is required!")]
         [DataType(DataType.EmailAddress)]
@@ -19,17 +24,11 @@ namespace Spenny_Wise.WebAPI.Domain.Models.UserEntity
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; } = "Email";
 
-        [Column(TypeName = "nvarchar(150)")]
-        [DisplayName("Password")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Password is required!")]
-        [StringLength(maximumLength: 100, MinimumLength = 8, ErrorMessage = "Password has to be between 8 and 100 characters")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = "Password";
-        [DataType(DataType.Date)]
-        public DateTime DateCreated { get; set; }
-        public List<Budget>? Budgets { get; set; }
-        public List<Expense>? Expenses { get; set; }
-        public List<BudgetCategory>? BudgetCategories { get; set; }
-        public List<ExpenseCategory>? ExpenseCategories { get; set; }
+        public string DateCreated { get; set; } = DateTime.Now.Date.ToShortDateString();
+        public List<Budget> Budgets { get; set; } = [];
+        public List<Expense> Expenses { get; set; } = [];
+        public List<BudgetCategory> BudgetCategories { get; set; } = [];
+        public List<ExpenseCategory> ExpenseCategories { get; set; } = [];
+        public List<UserRole> UserRoles { get; set; } = [];
     }
 }

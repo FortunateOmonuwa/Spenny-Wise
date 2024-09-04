@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Azure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Spenny_Wise.WebAPI.Data_Access.Contracts;
 using Spenny_Wise.WebAPI.Data_Access.Contracts.BaseContract;
 using Spenny_Wise.WebAPI.Data_Access.Contracts.ExpenseContract;
+using Spenny_Wise.WebAPI.Data_Access.DataAccessHelpers;
 using Spenny_Wise.WebAPI.Domain.DTOs;
 using Spenny_Wise.WebAPI.Domain.DTOs.Expense;
 using Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities;
@@ -11,55 +13,58 @@ using Spenny_Wise.WebAPI.Domain.Utilities;
 
 namespace Spenny_Wise.WebAPI.Data_Access.Repositories
 {
-    public class ExpenseRepository :  IExpenseContract
+    public class ExpenseRepository :  IBudgetandExpenseBaseContract<Expense>
     {
         private readonly ILogger<ExpenseRepository> logger;
         private readonly SpennyContext context;
         private readonly ExceptionHandler exceptionHandler;
         private readonly IMapper mapper;
-        public ExpenseRepository(ILogger<ExpenseRepository> logger, SpennyContext context, ExceptionHandler exceptionHandler, IMapper mapper)
+        private readonly DBAccessHelper dBAccessHelper;
+        private readonly IMemoryCache memoryCache;
+        private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(30);
+        public ExpenseRepository(ILogger<ExpenseRepository> logger,
+            SpennyContext context, 
+            ExceptionHandler exceptionHandler, 
+            IMapper mapper, 
+            DBAccessHelper dBAccessHelper,
+            IMemoryCache memoryCache)
         {
             this.logger = logger;
             this.context = context;
             this.exceptionHandler = exceptionHandler;
             this.mapper = mapper;
+            this.dBAccessHelper = dBAccessHelper;
+            this.memoryCache = memoryCache;
         }
-        public async Task<ResponseDetail<Expense>> Create(Expense param, string category)
+        public async Task<ResponseDetail<Expense>> Create(Expense param, Guid userId)
         {
             var response = new ResponseDetail<Expense>();
             try
             {
-                if(param is null)
+
+                var user = await context.Users.Include(x => x.Expenses).FirstOrDefaultAsync(x => x.Id == userId) ?? throw new ArgumentNullException();
+                var category_id = param.CategoryId;
+                var category = await dBAccessHelper.GetCategory(category_id);
+                if(category != null)
                 {
-                    logger.LogInformation("Some parameters were null/ not filled");
-                    return response.FailedResultData(param);
-                    throw new ArgumentNullException(nameof(param));
+                    param.CategoryId = category.Id;
                 }
                 else
                 {
-                    var check_category = await context.ExpenseCategories.FirstOrDefaultAsync(x => x.Name == category);
-                    if(check_category is null)
-                    {
-                        var newCategory = new ExpenseCategory
-                        {
-                            Name = category
-                        };
+                    param.CategoryId =  0;
+                }
+                user.Expenses.Add(param);
+                if(await context.SaveChangesAsync() > 0)
+                {
 
-                        await context.ExpenseCategories.AddAsync(newCategory);
-                        await context.SaveChangesAsync();
-                        param.CategoryId = newCategory.Id;
-                    }
-                    else
-                    {
-                        param.CategoryId = check_category.Id;
-                    }
-
-               
-                    await context.Expenses.AddAsync(param);
-                    await context.SaveChangesAsync();
-                    logger.LogInformation($"Operation successful. Expense successfully created \n\n\n ${param}");
                     return response.SuccessResultData(param);
                 }
+                else
+                {
+                    return response.FailedResultData(param);
+                }
+               
+                
             }
             catch(Exception ex) 
             {
@@ -68,105 +73,90 @@ namespace Spenny_Wise.WebAPI.Data_Access.Repositories
             }
         }
 
-        public Task<ResponseDetail<Expense>> Create(Expense param)
+        //public Task<ResponseDetail<Expense>> Create(Expense param)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public Task<ResponseDetail<bool>> Delete(Guid userId, string paramId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDetail<ExpenseGet>> CreateExpense(Expense expense_create_model)
+        public async Task<ResponseDetail<List<Expense>>> GetAll(Guid userId, int page_size, int page_number)
+        {
+            var response = new ResponseDetail<List<Expense>>();
+            try
+            {
+                var user_expenses = new List<Expense>();
+                string cacheKey = "AllExpenses";
+                var cache = memoryCache.TryGetValue(cacheKey, out List<Expense>? expenses);
+                if (!cache)
+                {
+                    expenses = await context.Expenses              
+                    .ToListAsync();
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(5))
+                        .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+                    memoryCache.Set(cacheKey, expenses, cacheEntryOptions);
+                }
+                user_expenses = expenses
+                    .Where(e=> e.UserId == userId)
+                    .Skip((page_number - 1) * page_size).Take(page_size)
+                    .ToList();
+                response = response.SuccessResultData([.. user_expenses]);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        } 
+        public async Task<ResponseDetail<List<Expense>>> GetAll(int page_size, int page_number)
+        {
+            
+            var response = new ResponseDetail<List<Expense>>();
+            try
+            {
+                string cacheKey = "AllExpenses";
+                var cache = memoryCache.TryGetValue(cacheKey, out List<Expense>? expenses);
+                if (!cache)
+                {
+                    expenses = await context.Expenses.ToListAsync();
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                    memoryCache.Set(cacheKey, expenses, cacheEntryOptions);
+                }
+                var paginated_expense = expenses.Skip((page_number - 1) * page_size).Take(page_size);
+                response = response.SuccessResultData([.. paginated_expense]);
+                
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public Task<ResponseDetail<Expense>> GetByCategory(string categoryId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDetail<bool>> Delete(string paramId)
+        public Task<ResponseDetail<Expense>> GetByDate(string date)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDetail<IEnumerable<ExpenseGet>>> GetAllExpenses()
+        public Task<ResponseDetail<Expense>> GetById(Guid userId, string paramId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDetail<ExpenseGet>> GetByCategory(string categoryId)
+        public Task<ResponseDetail<bool>> Update(string paramId, Expense param)
         {
             throw new NotImplementedException();
         }
-
-        public Task<ResponseDetail<ExpenseGet>> GetByDate(string date)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ResponseDetail<ExpenseGet>> GetExpense(string expense_id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ResponseDetail<bool>> Update(string paramId, ExpenseCreate param)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<ResponseDetail<Expense>> IExpenseContract.CreateExpense(Expense expense_create_model)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        //public Task<ResponseDetail<bool>> Delete(string paramId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<List<Expense>>> GetAll()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<IEnumerable<ExpenseGet>>> GetAllExpenses()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<Expense>> GetByCategory(string categoryId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<Expense>> GetByDate(string date)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<Expense>> GetById(string paramId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<ExpenseGet>> GetExpense(string expense_id)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<bool>> Update(string paramId, Expense param)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResponseDetail<bool>> Update(string paramId, ExpenseCreate param)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<ResponseDetail<ExpenseGet>> IExpenseContract.GetByCategory(string categoryId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<ResponseDetail<ExpenseGet>> IExpenseContract.GetByDate(string date)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }

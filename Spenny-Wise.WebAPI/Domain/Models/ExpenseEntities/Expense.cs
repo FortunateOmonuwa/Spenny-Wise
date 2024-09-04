@@ -13,15 +13,14 @@ namespace Spenny_Wise.WebAPI.Domain.Models.ExpenseEntities
         [DataType(DataType.Currency)]
         public string Price { get; set; } = "Price";
 
-        [DataType(DataType.Date)]
-        public DateTime DateOfExpense { get; set; }
+        public string DateOfExpense { get; set; } = DateTime.Now.Date.ToShortDateString();
 
         [ForeignKey(nameof(ExpenseCategory))]
-        public int? CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
 
         [ForeignKey(nameof(User))]
-        public int? UserId { get; set; }
+        public Guid? UserId { get; set; }
 
 
 

@@ -4,7 +4,7 @@
     {
         public bool IsSuccessful { get; set; }
         public string? Message { get; set; }
-        public T? Result { get; set; }
+        public T Result { get; set; }
         public int? ResultCode { get; set; }
 
 
@@ -14,7 +14,7 @@
             var r = new ResponseDetail<T>
             {
                 Message = "Operation was not successful: Please try again",
-               // Result = result,
+                Result = result,
                 IsSuccessful = false,
                 ResultCode = 400
             };
